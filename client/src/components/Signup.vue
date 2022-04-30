@@ -1,9 +1,9 @@
 <template>
   <div class="signup">
     <h2>Sign up</h2>
-    <input type="text" placeholder="Username" v-model="email">
+    <input type="text" placeholder="email" v-model="email">
     <input type="password" placeholder="Password" v-model="password">
-    <button>Register</button>
+    <button @click="signUp">Register</button>
     <p>Do you have an account?
       <router-link to="/signin">sign in now!!</router-link>
     </p>
@@ -11,12 +11,22 @@
 </template>
 
 <script>
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 export default {
   name: 'sign-up',
   data () {
     return {
       email: '',
       password: ''
+    }
+  },
+  methods: {
+    signUp: function () {
+      createUserWithEmailAndPassword(getAuth(), this.email, this.password).then(res => {
+        console.log('Create account: ', res.user.email)
+      }).catch(error => {
+        console.log(error.message)
+      })
     }
   }
 }
