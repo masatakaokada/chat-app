@@ -11,6 +11,8 @@ var e = createMux()
 
 func main() {
 	e.GET("/", hello)
+	e.GET("/public", public)
+	e.GET("/private", private)
 
 	e.Logger.Fatal(e.Start(":8082"))
 }
@@ -26,5 +28,13 @@ func createMux() *echo.Echo {
 }
 
 func hello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World")
+	return c.String(http.StatusOK, "Hello, World!\n")
+}
+
+func public(c echo.Context) error {
+	return c.String(http.StatusOK, "Hello, public!\n")
+}
+
+func private(c echo.Context) error {
+	return c.String(http.StatusOK, "Hello, private!\n")
 }
