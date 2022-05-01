@@ -22,8 +22,9 @@ export default {
   },
   methods: {
     signIn: function () {
-      signInWithEmailAndPassword(getAuth(), this.email, this.password).then(res => {
-        localStorage.setItem('jwt', res.user.qa)
+      const auth = getAuth()
+      signInWithEmailAndPassword(auth, this.email, this.password).then(res => {
+        localStorage.setItem('jwt', res.user.accessToken)
         this.$router.push('/')
       }, err => {
         alert(err.message)

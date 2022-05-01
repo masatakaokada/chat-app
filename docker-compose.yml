@@ -18,6 +18,8 @@ services:
       dockerfile: ./docker/go/Dockerfile
     command: fresh
     container_name: chat-go
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: "/go/src/server/chat-go-debdf-9bee2171b7f4.json"
     ports:
       - 8082:8082
     tty: true

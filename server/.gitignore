@@ -22,3 +22,6 @@ go.work
 
 # fresh用
 tmp/runner-build
+
+# firebaseの接続情報
+chat-go-*.json
