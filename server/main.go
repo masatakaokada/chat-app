@@ -3,23 +3,33 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
+
+	"golang.org/x/net/websocket"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
+
+	_ "github.com/go-sql-driver/mysql" // Using MySQL driver
+	"github.com/jmoiron/sqlx"
 )
 
 var e = createMux()
+var db *sqlx.DB
 
 func main() {
+	db = connectDB()
+
 	e.GET("/", hello)
 	e.GET("/public", public)
 	e.GET("/private", private, firebaseMiddleware())
+	e.GET("/ws", handleWebSocket)
 
 	e.Logger.Fatal(e.Start(":8082"))
 }
@@ -45,6 +55,19 @@ func public(c echo.Context) error {
 
 func private(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, private!\n")
+}
+
+func connectDB() *sqlx.DB {
+	dsn := os.Getenv("DSN")
+	db, err := sqlx.Open("mysql", dsn)
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	if err := db.Ping(); err != nil {
+		e.Logger.Fatal(err)
+	}
+	log.Println("db connection succeeded")
+	return db
 }
 
 // JWTを検証する
@@ -80,4 +103,33 @@ func firebaseMiddleware() echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func handleWebSocket(c echo.Context) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+
+		// 初回のメッセージを送信
+		err := websocket.Message.Send(ws, "Server: Hello, Client!")
+		if err != nil {
+			c.Logger().Error(err)
+		}
+
+		for {
+			// Client からのメッセージを読み込む
+			msg := ""
+			err = websocket.Message.Receive(ws, &msg)
+			if err != nil {
+				c.Logger().Error(err)
+			}
+
+			// Client からのメッセージを元に返すメッセージを作成し送信する
+			err := websocket.Message.Send(ws, fmt.Sprintf("サーバー: \"%s\" received!", msg))
+			if err != nil {
+				c.Logger().Error(err)
+				break
+			}
+		}
+	}).ServeHTTP(c.Response(), c.Request())
+	return nil
 }

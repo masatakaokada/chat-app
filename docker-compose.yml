@@ -19,6 +19,7 @@ services:
     command: fresh
     container_name: chat-go
     environment:
+      DSN: "root:password@tcp(docker.for.mac.localhost:3306)/chat-db?parseTime=true&autocommit=0&sql_mode=%27TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY%27"
       GOOGLE_APPLICATION_CREDENTIALS: "/go/src/server/chat-go-debdf-9bee2171b7f4.json"
     ports:
       - 8082:8082
@@ -26,3 +27,18 @@ services:
     volumes:
       - .:/go/src
     working_dir: /go/src/server
+
+  db:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: chat-db
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: chat-db
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:

@@ -3,6 +3,7 @@ import { getAuth } from "firebase/auth";
 import HelloWorld from "@/components/HelloWorld";
 import Signup from "@/components/Signup";
 import Signin from "@/components/Signin";
+import Chat from "@/components/Chat";
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: "/signin",
     name: "Signin",
     component: Signin,
+  },
+  {
+    path: "/chat",
+    name: "Chat",
+    component: Chat,
   },
 ];
 

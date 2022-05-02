@@ -1,19 +1,32 @@
 <template>
-    <div class="signin">
-        <h2>Sign in</h2>
-        <input type="text" placeholder="email" v-model="email">
-        <input type="password" placeholder="Password" v-model="password">
-        <button @click="signIn">Signin</button>
-        <p>You don't have an account?
-            <router-link to="/signup">create account now!!</router-link>
-        </p>
-    </div>
+  <div class="signin">
+    <h2>Sign in</h2>
+    <input
+      v-model="email"
+      type="text"
+      placeholder="email"
+    >
+    <input
+      v-model="password"
+      type="password"
+      placeholder="Password"
+    >
+    <button @click="signIn">
+      Signin
+    </button>
+    <p>
+      You don't have an account?
+      <router-link to="/signup">
+        create account now!!
+      </router-link>
+    </p>
+  </div>
 </template>
 
 <script>
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 export default {
-  name: 'sign-in',
+  name: 'SignIn',
   data: function () {
     return {
       email: '',
@@ -25,7 +38,7 @@ export default {
       const auth = getAuth()
       signInWithEmailAndPassword(auth, this.email, this.password).then(res => {
         localStorage.setItem('jwt', res.user.accessToken)
-        this.$router.push('/')
+        this.$router.push('/chat')
       }, err => {
         alert(err.message)
       })
