@@ -30,6 +30,7 @@ func main() {
 	e.GET("/public", public)
 	e.GET("/private", private, firebaseMiddleware())
 	e.GET("/ws", handleWebSocket)
+	go handleMessages()
 
 	e.Logger.Fatal(e.Start(":8082"))
 }
@@ -105,30 +106,65 @@ func firebaseMiddleware() echo.MiddlewareFunc {
 	}
 }
 
+// 接続されるクライアント
+var clients = make(map[*websocket.Conn]bool)
+
+// メッセージブロードキャストチャネル
+var broadcast = make(chan Message)
+
+// メッセージ用構造体
+type Message struct {
+	Username string `json:"username"`
+	Message  string `json:"message"`
+}
+
+func handleMessages() {
+	for {
+		// broadcastチャネルからメッセージを受け取る
+		message := <-broadcast
+
+		// 接続中の全クライアントにメッセージを送る
+		for client := range clients {
+			err := websocket.Message.Send(client, message.Message)
+			if err != nil {
+				log.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
+	}
+}
+
 func handleWebSocket(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
-		// 初回のメッセージを送信
-		err := websocket.Message.Send(ws, "Server: Hello, Client!")
-		if err != nil {
-			c.Logger().Error(err)
+		// クライアントを登録
+		clients[ws] = true
+
+		message := &Message{
+			Username: "サーバーサイド",
+			Message:  "チャットルームに参加しました",
 		}
 
+		// 初回のメッセージを送信
+		broadcast <- *message
+
 		for {
-			// Client からのメッセージを読み込む
 			msg := ""
-			err = websocket.Message.Receive(ws, &msg)
+			err := websocket.Message.Receive(ws, &msg)
 			if err != nil {
+				ws.Close()
 				c.Logger().Error(err)
 			}
 
-			// Client からのメッセージを元に返すメッセージを作成し送信する
-			err := websocket.Message.Send(ws, fmt.Sprintf("サーバー: \"%s\" received!", msg))
-			if err != nil {
-				c.Logger().Error(err)
-				break
+			m := &Message{
+				Username: "ユーザー",
+				Message:  msg,
 			}
+
+			// 受け取ったメッセージをbroadcastチャネルに送る
+			broadcast <- *m
 		}
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil

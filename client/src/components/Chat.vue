@@ -116,11 +116,6 @@ export default {
     doSend: async function () {
       if (this.user.uid && this.input.length) {
         this.connection.send(this.input);
-        this.chat.push({
-          key: 1,
-          name: '自分',
-          message: "自分:" + this.input
-        })
         this.input = ''
       }
     },
