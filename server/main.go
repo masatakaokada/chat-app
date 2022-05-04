@@ -1,6 +1,8 @@
 package main
 
 import (
+	"app/model"
+	"app/repository"
 	"context"
 	"fmt"
 	"log"
@@ -25,11 +27,12 @@ var db *sqlx.DB
 
 func main() {
 	db = connectDB()
+	repository.SetDB(db)
 
 	e.GET("/", hello)
 	e.GET("/public", public)
 	e.GET("/private", private, firebaseMiddleware())
-	e.GET("/ws", handleWebSocket)
+	e.GET("/ws", handleWebSocket, firebaseMiddleware())
 	go handleMessages()
 
 	e.Logger.Fatal(e.Start(":8082"))
@@ -93,6 +96,10 @@ func firebaseMiddleware() echo.MiddlewareFunc {
 			auth := c.Request().Header.Get("Authorization")
 			idToken := strings.Replace(auth, "Bearer ", "", 1)
 
+			if idToken == "" {
+				idToken = c.QueryParam("token")
+			}
+
 			// JWT の検証
 			token, err := client.VerifyIDToken(context.Background(), idToken)
 			if err != nil {
@@ -100,7 +107,29 @@ func firebaseMiddleware() echo.MiddlewareFunc {
 				return err
 			}
 
-			c.Set("token", token)
+			db_user, _ := repository.UserGetByFirebaseUid(token.UID)
+
+			if db_user == nil {
+				user := &model.User{
+					Name:        "はじめてのゆーざー" + token.UID,
+					Email:       token.Firebase.Identities["email"].([]interface{})[0].(string),
+					FirebaseUid: token.UID,
+				}
+
+				res, err := repository.UserCreate(user)
+				if err != nil {
+					// エラーの内容をサーバーのログに出力します。
+					c.Logger().Error(err.Error())
+
+					// サーバー内の処理でエラーが発生した場合は 500 エラーを返却します。
+					return c.NoContent(http.StatusInternalServerError)
+				}
+
+				id, _ := res.LastInsertId()
+				fmt.Printf("ユーザーの作成に成功しました。 id: %v\n", id)
+			}
+
+			c.Set("uid", token.UID)
 			return next(c)
 		}
 	}
@@ -125,7 +154,7 @@ func handleMessages() {
 
 		// 接続中の全クライアントにメッセージを送る
 		for client := range clients {
-			err := websocket.Message.Send(client, message.Message)
+			err := websocket.JSON.Send(client, message)
 			if err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
@@ -139,11 +168,13 @@ func handleWebSocket(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
-		// クライアントを登録
+		user_uid := c.Get("uid")
+
+		db_user, _ := repository.UserGetByFirebaseUid(user_uid.(string))
 		clients[ws] = true
 
 		message := &Message{
-			Username: "サーバーサイド",
+			Username: db_user.Name,
 			Message:  "チャットルームに参加しました",
 		}
 
@@ -159,7 +190,7 @@ func handleWebSocket(c echo.Context) error {
 			}
 
 			m := &Message{
-				Username: "ユーザー",
+				Username: db_user.Name,
 				Message:  msg,
 			}
 

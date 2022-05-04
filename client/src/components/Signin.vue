@@ -38,7 +38,7 @@ export default {
       const auth = getAuth()
       signInWithEmailAndPassword(auth, this.email, this.password).then(res => {
         localStorage.setItem('jwt', res.user.accessToken)
-        this.$router.push('/chat')
+        this.$router.push('/')
       }, err => {
         alert(err.message)
       })

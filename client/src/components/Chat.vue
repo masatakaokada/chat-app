@@ -79,17 +79,16 @@ export default {
       }
     })
 
-
-
     console.log("Starting connection to WebSocket Server")
-    this.connection = new WebSocket("ws://localhost:8082/ws")
+    this.connection = new WebSocket(`ws://localhost:8082/ws?token=${localStorage.getItem('jwt')}`)
 
     const v = this;
     this.connection.onmessage = function(event) {
+      const obj = JSON.parse(event.data);
       v.chat.push({
         key: 1,
-        name: 'サーバー',
-        message: event.data
+        name: obj.username,
+        message: obj.message
       })
       v.scrollBottom()
     }
