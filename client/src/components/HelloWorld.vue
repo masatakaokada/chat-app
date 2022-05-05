@@ -1,10 +1,19 @@
 <template>
-  <div class='hello'>
+  <div class="hello">
     <h1>{{ msg }}</h1>
     <h2>Essential Links</h2>
-    <button @click="signOut">Sign out</button>
-    <button @click="apiPublic">public</button>
-    <button @click="apiPrivate">private</button>
+    <button @click="signOut">
+      Sign out
+    </button>
+    <button @click="apiPublic">
+      public
+    </button>
+    <button @click="apiPrivate">
+      private
+    </button>
+    <button @click="chat">
+      chat
+    </button>
   </div>
 </template>
 
@@ -34,7 +43,10 @@ export default {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
       })
       this.msg = res.data
-    }
+    },
+    chat: function () {
+      this.$router.push('/chat')
+    },
   }
 }
 </script>
