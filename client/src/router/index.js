@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { getAuth } from "firebase/auth";
-import HelloWorld from "@/components/HelloWorld";
+import Top from "@/components/Top";
 import Signup from "@/components/Signup";
 import Signin from "@/components/Signin";
 import Chat from "@/components/Chat";
@@ -12,8 +12,8 @@ const routes = [
   },
   {
     path: "/",
-    name: "HelloWorld",
-    component: HelloWorld,
+    name: "Top",
+    component: Top,
     meta: { requiresAuth: true },
   },
   {

@@ -13,6 +13,12 @@
         >
           ログアウト
         </button>
+        <button
+          type="button"
+          @click="$router.push('/')"
+        >
+          トップページ
+        </button>
       </div>
     </header>
 
@@ -193,6 +199,11 @@ export default {
 }
 .send-button {
   height: 4em;
+}
+
+button {
+  margin: 10px 0;
+  padding: 10px;
 }
 /* トランジション用スタイル */
 .chat-enter-active {

@@ -30,12 +30,8 @@ func main() {
 	db = connectDB()
 	repository.SetDB(db)
 
-	e.GET("/", hello)
-	e.GET("/public", public)
-	e.GET("/private", private, firebaseMiddleware())
 	e.GET("/ws", handleWebSocket, firebaseMiddleware())
 	e.POST("/users", user, firebaseMiddleware())
-	go handleMessages()
 
 	e.Logger.Fatal(e.Start(":8082"))
 }
@@ -49,18 +45,6 @@ func createMux() *echo.Echo {
 	e.Use(middleware.Gzip())
 
 	return e
-}
-
-func hello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!\n")
-}
-
-func public(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, public!\n")
-}
-
-func private(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, private!\n")
 }
 
 func connectDB() *sqlx.DB {
@@ -145,6 +129,7 @@ func handleMessages() {
 }
 
 func handleWebSocket(c echo.Context) error {
+	go handleMessages()
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
