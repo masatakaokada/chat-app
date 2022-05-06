@@ -16,6 +16,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	firebase "firebase.google.com/go"
+	"firebase.google.com/go/auth"
 	"google.golang.org/api/option"
 
 	_ "github.com/go-sql-driver/mysql" // Using MySQL driver
@@ -33,6 +34,7 @@ func main() {
 	e.GET("/public", public)
 	e.GET("/private", private, firebaseMiddleware())
 	e.GET("/ws", handleWebSocket, firebaseMiddleware())
+	e.POST("/users", user, firebaseMiddleware())
 	go handleMessages()
 
 	e.Logger.Fatal(e.Start(":8082"))
@@ -107,29 +109,7 @@ func firebaseMiddleware() echo.MiddlewareFunc {
 				return err
 			}
 
-			db_user, _ := repository.UserGetByFirebaseUid(token.UID)
-
-			if db_user == nil {
-				user := &model.User{
-					Name:        "はじめてのゆーざー" + token.UID,
-					Email:       token.Firebase.Identities["email"].([]interface{})[0].(string),
-					FirebaseUid: token.UID,
-				}
-
-				res, err := repository.UserCreate(user)
-				if err != nil {
-					// エラーの内容をサーバーのログに出力します。
-					c.Logger().Error(err.Error())
-
-					// サーバー内の処理でエラーが発生した場合は 500 エラーを返却します。
-					return c.NoContent(http.StatusInternalServerError)
-				}
-
-				id, _ := res.LastInsertId()
-				fmt.Printf("ユーザーの作成に成功しました。 id: %v\n", id)
-			}
-
-			c.Set("uid", token.UID)
+			c.Set("token", token)
 			return next(c)
 		}
 	}
@@ -168,9 +148,9 @@ func handleWebSocket(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
-		user_uid := c.Get("uid")
+		token := c.Get("token").(*auth.Token)
 
-		db_user, _ := repository.UserGetByFirebaseUid(user_uid.(string))
+		db_user, _ := repository.UserGetByFirebaseUid(token.UID)
 		clients[ws] = true
 
 		message := &Message{
@@ -185,8 +165,8 @@ func handleWebSocket(c echo.Context) error {
 			msg := ""
 			err := websocket.Message.Receive(ws, &msg)
 			if err != nil {
-				ws.Close()
 				c.Logger().Error(err)
+				break
 			}
 
 			m := &Message{
@@ -199,4 +179,35 @@ func handleWebSocket(c echo.Context) error {
 		}
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil
+}
+
+func user(c echo.Context) error {
+	token := c.Get("token").(*auth.Token)
+
+	user, _ := repository.UserGetByFirebaseUid(token.UID)
+
+	if user == nil {
+		user := &model.User{
+			Email:       token.Claims["email"].(string),
+			FirebaseUid: token.UID,
+		}
+
+		if err := c.Bind(&user); err != nil {
+			c.Logger().Error(err.Error())
+
+			return c.NoContent(http.StatusBadRequest)
+		}
+
+		res, err := repository.UserCreate(user)
+		if err != nil {
+			c.Logger().Error(err.Error())
+
+			return c.NoContent(http.StatusInternalServerError)
+		}
+
+		id, _ := res.LastInsertId()
+		fmt.Printf("ユーザーの作成に成功しました。 id: %v\n", id)
+	}
+
+	return c.NoContent(http.StatusOK)
 }

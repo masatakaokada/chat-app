@@ -1,51 +1,66 @@
 <template>
   <div class="signup">
-    <h2>Sign up</h2>
-    <input type="text" placeholder="email" v-model="email">
-    <input type="password" placeholder="Password" v-model="password">
-    <button @click="signUp">Register</button>
-    <p>Do you have an account?
-      <router-link to="/signin">sign in now!!</router-link>
+    <h2>新規登録</h2>
+    <input
+      v-model="name"
+      type="text"
+      placeholder="ニックネーム"
+    >
+    <input
+      v-model="email"
+      type="text"
+      placeholder="メールアドレス"
+    >
+    <input
+      v-model="password"
+      type="password"
+      placeholder="パスワード"
+    >
+    <button @click="signUp">
+      登録する
+    </button>
+    <p>
+      既にアカウントをお持ちの方
+      <router-link to="/signin">
+        ログイン
+      </router-link>
     </p>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 export default {
-  name: 'sign-up',
+  name: 'Signup',
   data () {
     return {
+      name: '',
       email: '',
       password: ''
     }
   },
   methods: {
-    signUp: function () {
-      createUserWithEmailAndPassword(getAuth(), this.email, this.password).then(res => {
-        console.log('Create account: ', res.user.email)
-      }).catch(error => {
-        console.log(error.message)
-      })
+    signUp: async function () {
+      const auth = getAuth();
+      try {
+        const res = await createUserWithEmailAndPassword(auth, this.email, this.password)
+        axios.post('http://localhost:8082/users', { name: this.name }, {
+          headers: { 'Authorization': `Bearer ${res.user.accessToken}` }
+        })
+        localStorage.setItem('jwt', res.user.accessToken)
+        this.$router.push('/')
+      } catch (error) {
+        alert(error.message)
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-h1, h2 {
+h2 {
   font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
 }
 .signup {
   margin-top: 20px;

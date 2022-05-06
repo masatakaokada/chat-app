@@ -1,23 +1,23 @@
 <template>
   <div class="signin">
-    <h2>Sign in</h2>
+    <h2>ログイン</h2>
     <input
       v-model="email"
       type="text"
-      placeholder="email"
+      placeholder="メールアドレス"
     >
     <input
       v-model="password"
       type="password"
-      placeholder="Password"
+      placeholder="パスワード"
     >
     <button @click="signIn">
-      Signin
+      ログイン
     </button>
     <p>
-      You don't have an account?
+      初めての登録ですか?
       <router-link to="/signup">
-        create account now!!
+        新規登録
       </router-link>
     </p>
   </div>
@@ -26,7 +26,7 @@
 <script>
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 export default {
-  name: 'SignIn',
+  name: 'Signin',
   data: function () {
     return {
       email: '',
@@ -48,19 +48,8 @@ export default {
 </script>
 
 <style scoped>
-h1, h2 {
+h2 {
   font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
 }
 .signin {
   margin-top: 20px;
