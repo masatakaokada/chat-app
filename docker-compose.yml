@@ -21,6 +21,7 @@ services:
     environment:
       DSN: "root:password@tcp(docker.for.mac.localhost:3306)/chat-db?parseTime=true&autocommit=0&sql_mode=%27TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY%27"
       GOOGLE_APPLICATION_CREDENTIALS: "/go/src/server/chat-go-debdf-9bee2171b7f4.json"
+      PORT: 8082
     ports:
       - 8082:8082
     tty: true

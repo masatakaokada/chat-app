@@ -30,10 +30,15 @@ func main() {
 	db = connectDB()
 	repository.SetDB(db)
 
+	e.GET("/", hello)
 	e.GET("/ws", handleWebSocket, firebaseMiddleware())
 	e.POST("/users", user, firebaseMiddleware())
 
-	e.Logger.Fatal(e.Start(":8082"))
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
+}
+
+func hello(c echo.Context) error {
+	return c.String(http.StatusOK, "Hello, World!\n")
 }
 
 func createMux() *echo.Echo {
