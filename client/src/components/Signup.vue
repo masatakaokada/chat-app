@@ -45,7 +45,7 @@ export default {
       const auth = getAuth();
       try {
         const res = await createUserWithEmailAndPassword(auth, this.email, this.password)
-        axios.post('http://localhost:8082/users', { name: this.name }, {
+        axios.post(`${process.env.VUE_APP_API_URL}/users`, { name: this.name }, {
           headers: { 'Authorization': `Bearer ${res.user.accessToken}` }
         })
         localStorage.setItem('jwt', res.user.accessToken)

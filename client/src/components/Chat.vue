@@ -86,7 +86,7 @@ export default {
     })
 
     console.log("Starting connection to WebSocket Server")
-    this.connection = new WebSocket(`ws://localhost:8082/ws?token=${localStorage.getItem('jwt')}`)
+    this.connection = new WebSocket(`${process.env.VUE_APP_WEBSOCKET_URL}/ws?token=${localStorage.getItem('jwt')}`)
 
     const v = this;
     this.connection.onmessage = function(event) {
