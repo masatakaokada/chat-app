@@ -1,0 +1,22 @@
+FROM node:17.9-alpine as build-stage
+
+WORKDIR /app
+
+COPY ./client/package*.json ./
+COPY ./client/yarn.lock ./
+
+RUN yarn install
+
+COPY ./client .
+
+RUN yarn run prod-build
+
+
+FROM nginx:stable-alpine as production-stage
+
+RUN mkdir /app
+COPY --from=build-stage /app/dist /app
+
+# 環境変数を適応したdefault.confファイルを作成
+# herokuはポート番号をランダムで割り当てられるため環境変数にしている
+COPY ./docker/vue/default.conf.template /etc/nginx/templates/

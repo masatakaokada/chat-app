@@ -4,10 +4,10 @@
 development:
   driver: mymysql
   open: tcp:docker.for.mac.localhost:3306*chat-db/root/password
-# production:
-#   driver: postgres
-#   open: user=liam dbname=tester sslmode=verify-full
 
+production:
+  driver: mymysql
+  open: $GOOSE_CONNECTION
 # customimport:
 #   driver: customdriver
 #   open: customdriver open
