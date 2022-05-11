@@ -34,14 +34,28 @@ export default {
     }
   },
   methods: {
-    signIn: function () {
+    signIn: async function () {
       const auth = getAuth()
-      signInWithEmailAndPassword(auth, this.email, this.password).then(res => {
+      try {
+        const res = await signInWithEmailAndPassword(auth, this.email, this.password)
         localStorage.setItem('jwt', res.user.accessToken)
         this.$router.push('/')
-      }, err => {
-        alert(err.message)
-      })
+      } catch (error) {
+        switch (error.code) {
+        case 'auth/wrong-password':
+          alert('パスワードが違います')
+          break
+        case 'auth/invalid-email':
+          alert('無効のメールアドレスです')
+          break
+        case 'auth/user-not-found':
+          alert('ユーザーが存在しません')
+          break
+        default:
+          alert(error.message)
+          break
+        }
+      }
     }
   }
 }
