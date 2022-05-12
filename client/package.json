@@ -12,8 +12,10 @@
     "axios": "^0.26.1",
     "core-js": "^3.8.3",
     "firebase": "^9.7.0",
+    "reconnecting-websocket": "^4.4.0",
     "vue": "^3.2.13",
-    "vue-router": "^4.0.14"
+    "vue-router": "^4.0.14",
+    "vue-uuid": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

@@ -3,6 +3,7 @@ import App from "./App.vue";
 import router from "./router";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import uuid from "vue-uuid";
 
 const firebaseConfig = {
   apiKey: process.env.VUE_APP_API_KEY,
@@ -19,6 +20,6 @@ let app;
 const auth = getAuth();
 onAuthStateChanged(auth, () => {
   if (!app) {
-    createApp(App).use(router).mount("#app");
+    createApp(App).use(router).use(uuid).mount("#app");
   }
 });

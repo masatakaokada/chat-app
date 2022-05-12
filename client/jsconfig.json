@@ -16,5 +16,9 @@
       "dom.iterable",
       "scripthost"
     ]
-  }
+  },
+  "vueCompilerOptions": {
+    // defineComponentの警告非表示のため
+    "experimentalShamefullySupportOptionsApi": false
+  },
 }

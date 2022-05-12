@@ -67,6 +67,7 @@
 
 <script>
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import ReconnectingWebSocket from 'reconnecting-websocket';
 export default {
   data() {
     return {
@@ -86,23 +87,34 @@ export default {
     })
 
     console.log("Starting connection to WebSocket Server")
-    this.connection = new WebSocket(`${process.env.VUE_APP_WEBSOCKET_URL}/ws?token=${localStorage.getItem('jwt')}`)
+    const options = { maxRetries: 3, debug: true };
+    this.connection = new ReconnectingWebSocket(
+      `${process.env.VUE_APP_WEBSOCKET_URL}/ws?token=${localStorage.getItem('jwt')}`,
+      [],
+      options
+    )
 
-    const v = this;
-    this.connection.onmessage = function(event) {
+    this.connection.onmessage = event => {
       const obj = JSON.parse(event.data);
-      v.chat.push({
-        key: 1,
+      this.chat.push({
+        key: this.$uuid.v4(),
         name: obj.username,
         message: obj.message
       })
-      v.scrollBottom()
+      this.scrollBottom()
     }
 
+    this.connection.onopen = () => {
+      console.log("Successfully connected to the websocket server")
+    }
 
-    this.connection.onopen = function(event) {
-      console.log(event)
-      console.log("Successfully connected to the echo websocket server...")
+    this.connection.onclose = () => {
+      console.log("connection closed")
+    }
+
+    this.connection.onerror = error => {
+      console.log("there was an error")
+      console.log(error)
     }
   },
   methods: {
