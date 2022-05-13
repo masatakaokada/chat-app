@@ -1,5 +1,6 @@
 <template>
   <div class="signup">
+    <img alt="Vue logo" src="../assets/logo.png">
     <h2>新規登録</h2>
     <input
       v-model="name"
@@ -91,7 +92,9 @@ h2 {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  align-items: center
+  align-items: center;
+  text-align: center;
+  margin-top: 60px;
 }
 input {
   margin: 10px 0;

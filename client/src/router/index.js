@@ -4,6 +4,7 @@ import Top from "@/components/Top";
 import Signup from "@/components/Signup";
 import Signin from "@/components/Signin";
 import Chat from "@/components/Chat";
+import Room from "@/components/Room";
 
 const routes = [
   {
@@ -30,6 +31,12 @@ const routes = [
     path: "/chat",
     name: "Chat",
     component: Chat,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/room",
+    name: "Room",
+    component: Room,
     meta: { requiresAuth: true },
   },
 ];

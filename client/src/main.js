@@ -4,6 +4,7 @@ import router from "./router";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import uuid from "vue-uuid";
+import "normalize.css/normalize.css";
 
 const firebaseConfig = {
   apiKey: process.env.VUE_APP_API_KEY,

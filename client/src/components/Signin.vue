@@ -1,5 +1,6 @@
 <template>
   <div class="signin">
+    <img alt="Vue logo" src="../assets/logo.png">
     <h2>ログイン</h2>
     <input
       v-model="email"
@@ -70,7 +71,9 @@ h2 {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  align-items: center
+  align-items: center;
+  text-align: center;
+  margin-top: 60px;
 }
 input {
   margin: 10px 0;
