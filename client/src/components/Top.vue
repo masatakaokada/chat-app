@@ -8,16 +8,32 @@
     <button @click="$router.push('/chat')">
       全体チャット
     </button>
+    <button type="button" @click="$router.push('/rooms/new')">
+      ルームを作成
+    </button>
+    <h2>ルームリスト</h2>
+    <div v-for="room in rooms" :key="room.id" class="room-item" @click="$router.push(`/rooms/${room.id}`)">
+      <div class="vac-avatar" />
+      {{ room.name }}
+    </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 import { getAuth, signOut } from 'firebase/auth'
 export default {
   name: 'Top',
   data () {
     return {
+      rooms: []
     }
+  },
+  async created() {
+    const res = await axios.get('http://localhost:8082/rooms', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
+    })
+    this.rooms = res.data
   },
   methods: {
     signOut: function () {
@@ -42,5 +58,32 @@ h1, h2 {
 button {
   margin: 10px 0;
   padding: 10px;
+}
+.room-item {
+  border-radius: 8px;
+  align-items: center;
+  display: flex;
+  flex: 1 1 100%;
+  margin-bottom: 5px;
+  padding: 0 400px;
+  position: relative;
+  min-height: 71px;
+  transition: background-color 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+.room-item:hover {
+  background: #f6f6f6;
+}
+.vac-avatar {
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-color: #ddd;
+	height: 42px;
+	width: 42px;
+	min-height: 42px;
+	min-width: 42px;
+	margin-right: 15px;
+	border-radius: 50%;
+  background-image: url("../assets/default_icon.png")
 }
 </style>

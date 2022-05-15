@@ -8,12 +8,12 @@ import (
 func Up_20220503024631(txn *sql.Tx) {
 	txn.Exec(
 		`CREATE TABLE users (
-    id int AUTO_INCREMENT,
-    name varchar(100),
-		email varchar(100),
-		firebase_uid varchar(100),
-		created datetime,
-		updated datetime,
+    id           INT          NOT NULL AUTO_INCREMENT,
+    name         VARCHAR(255) NOT NULL,
+		email        VARCHAR(255) NOT NULL UNIQUE,
+		firebase_uid VARCHAR(255) NOT NULL UNIQUE,
+		created      DATETIME     NOT NULL,
+		updated      DATETIME     NOT NULL,
     PRIMARY KEY(id)
 		);`,
 	)

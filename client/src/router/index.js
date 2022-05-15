@@ -4,6 +4,7 @@ import Top from "@/components/Top";
 import Signup from "@/components/Signup";
 import Signin from "@/components/Signin";
 import Chat from "@/components/Chat";
+import RoomNew from "@/components/RoomNew";
 import Room from "@/components/Room";
 
 const routes = [
@@ -34,8 +35,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/room",
-    name: "Room",
+    path: "/rooms/new",
+    component: RoomNew,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/rooms/:id",
     component: Room,
     meta: { requiresAuth: true },
   },

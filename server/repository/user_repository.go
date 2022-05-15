@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-func UserList() ([]*model.User, error) {
-	query := `SELECT * FROM users;`
+func RoomCreationUsers(user_id int) ([]*model.User, error) {
+	query := `SELECT * FROM users WHERE NOT id = ?;`
 
 	var users []*model.User
-	if err := db.Select(&users, query); err != nil {
+	if err := db.Select(&users, query, user_id); err != nil {
 		return nil, err
 	}
 
