@@ -30,7 +30,7 @@ export default {
     }
   },
   async created() {
-    const res = await axios.get(`${process.env.VUE_APP_API_URL}/room-creation-users`, {
+    const res = await axios.get(`${process.env.VUE_APP_API_URL}/users`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
     })
     this.users = res.data
