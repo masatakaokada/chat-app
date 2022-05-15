@@ -89,7 +89,7 @@ export default {
     })
 
     console.log("Starting connection to WebSocket Server")
-    const options = { maxRetries: 3, debug: true };
+    const options = { maxRetries: 3 }; // デバッグ時は debug: true を記載する
     this.connection = new ReconnectingWebSocket(
       `${process.env.VUE_APP_WEBSOCKET_URL}/ws?token=${localStorage.getItem('jwt')}`,
       [],
