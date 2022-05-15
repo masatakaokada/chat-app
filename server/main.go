@@ -31,6 +31,7 @@ func main() {
 
 	e.GET("/", hello)
 	e.GET("/ws", handler.WebSocketHandler, firebaseMiddleware())
+	e.GET("/ws/rooms/:id", handler.RoomWebSocket, firebaseMiddleware())
 	e.GET("/room-creation-users", handler.RoomCreationUsers, firebaseMiddleware())
 	e.POST("/users", user, firebaseMiddleware())
 	e.GET("/rooms", handler.RoomIndex, firebaseMiddleware())

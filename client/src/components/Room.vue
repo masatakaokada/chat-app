@@ -15,7 +15,9 @@
 
     <transition-group name="chat" tag="div" class="list content">
       <section v-for="{ key, name, message } in chat" :key="key" class="item">
-        <!-- <div class="item-image"><img :src="image" width="40" height="40"></div> -->
+        <div class="item-image">
+          <img src="../assets/default_icon.png" width="40" height="40">
+        </div>
         <div class="item-detail">
           <div class="item-name">
             {{ name }}
@@ -39,6 +41,7 @@
 
 <script>
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import ReconnectingWebSocket from 'reconnecting-websocket';
 export default {
   data() {
     return {
@@ -58,23 +61,34 @@ export default {
     })
 
     console.log("Starting connection to WebSocket Server")
-    this.connection = new WebSocket(`ws://localhost:8082/roomsws?token=${localStorage.getItem('jwt')}`)
+    const options = { maxRetries: 3, debug: true };
+    this.connection = new ReconnectingWebSocket(
+      `${process.env.VUE_APP_WEBSOCKET_URL}/ws/rooms/${this.$route.params.id}?token=${localStorage.getItem('jwt')}`,
+      [],
+      options
+    )
 
-    const v = this;
-    this.connection.onmessage = function(event) {
+    this.connection.onmessage = event => {
       const obj = JSON.parse(event.data);
-      v.chat.push({
-        key: 1,
+      this.chat.push({
+        key: this.$uuid.v4(),
         name: obj.username,
         message: obj.message
       })
-      v.scrollBottom()
+      this.scrollBottom()
     }
 
+    this.connection.onopen = () => {
+      console.log("Successfully connected to the websocket server")
+    }
 
-    this.connection.onopen = function(event) {
-      console.log(event)
-      console.log("Successfully connected to the echo websocket server...")
+    this.connection.onclose = () => {
+      console.log("connection closed")
+    }
+
+    this.connection.onerror = error => {
+      console.log("there was an error")
+      console.log(error)
     }
   },
   methods: {
@@ -107,7 +121,7 @@ export default {
 }
 .header {
   background: #3ab383;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
   padding: 0.4em 0.8em;
   color: #fff;
 }
@@ -140,7 +154,7 @@ export default {
   position: relative;
   display: flex;
   align-items: flex-end;
-  margin-bottom: 0.8em;
+  margin-bottom: 2em;
 }
 .item-image img {
   border-radius: 20px;

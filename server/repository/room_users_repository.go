@@ -4,16 +4,17 @@ import (
 	"app/model"
 )
 
-func RoomUserGetByRoomId(firebase_uid string) (*model.User, error) {
+func RoomUserGetByUserIdAndRoomId(userId int, roomId int) (*model.RoomUser, error) {
 	query := `SELECT *
 	FROM room_users
-	WHERE firebase_uid = ?;`
+	WHERE user_id = ?
+	AND room_id = ?;`
 
-	var user model.User
+	var roomUser model.RoomUser
 
-	if err := db.Get(&user, query, firebase_uid); err != nil {
+	if err := db.Get(&roomUser, query, userId, roomId); err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return &roomUser, nil
 }
