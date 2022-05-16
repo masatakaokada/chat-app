@@ -30,7 +30,7 @@ export default {
     }
   },
   async created() {
-    const res = await axios.get('http://localhost:8082/rooms', {
+    const res = await axios.get(`${process.env.VUE_APP_API_URL}/rooms`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
     })
     this.rooms = res.data

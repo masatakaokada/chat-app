@@ -55,3 +55,10 @@ server side
 - Go の本番環境はビルドファイルを Alpine のイメージに置いて実行。
 - Vue の本番環境はビルドファイルを Nginx サーバーに置いて実行。
 - Heroku の Container Registry を使用している。
+
+## Migration after deploy
+
+```
+cd app && goose -env production status
+goose -env production up
+```
