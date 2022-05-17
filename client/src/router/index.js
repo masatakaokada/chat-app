@@ -3,9 +3,7 @@ import { getAuth } from "firebase/auth";
 import Top from "@/components/Top";
 import Signup from "@/components/Signup";
 import Signin from "@/components/Signin";
-import Chat from "@/components/Chat";
 import RoomNew from "@/components/RoomNew";
-import Room from "@/components/Room";
 
 const routes = [
   {
@@ -29,19 +27,8 @@ const routes = [
     component: Signin,
   },
   {
-    path: "/chat",
-    name: "Chat",
-    component: Chat,
-    meta: { requiresAuth: true },
-  },
-  {
     path: "/rooms/new",
     component: RoomNew,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: "/rooms/:id",
-    component: Room,
     meta: { requiresAuth: true },
   },
 ];
