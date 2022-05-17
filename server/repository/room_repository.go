@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-func RoomList() ([]*model.Room, error) {
-	query := `SELECT * FROM rooms;`
+func RoomList(currentUserId int) ([]*model.Room, error) {
+	query := `SELECT rooms.id, rooms.name FROM rooms INNER JOIN room_users ON rooms.id = room_users.room_id WHERE room_users.user_id = ?;`
 
 	var rooms []*model.Room
-	if err := db.Select(&rooms, query); err != nil {
+	if err := db.Select(&rooms, query, currentUserId); err != nil {
 		return nil, err
 	}
 

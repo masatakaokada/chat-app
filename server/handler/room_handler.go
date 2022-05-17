@@ -10,7 +10,10 @@ import (
 )
 
 func RoomIndex(c echo.Context) error {
-	rooms, err := repository.RoomList()
+	token := c.Get("token").(*auth.Token)
+	user, _ := repository.UserGetByFirebaseUid(token.UID)
+
+	rooms, err := repository.RoomList(user.ID)
 	if err != nil {
 		c.Logger().Error(err.Error())
 	}
