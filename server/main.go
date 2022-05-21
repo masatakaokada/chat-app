@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"gopkg.in/go-playground/validator.v9"
 
 	_ "github.com/go-sql-driver/mysql" // Using MySQL driver
 	"github.com/jmoiron/sqlx"
@@ -45,6 +46,8 @@ func createMux() *echo.Echo {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Gzip())
 
+	e.Validator = &CustomValidator{validator: validator.New()}
+
 	return e
 }
 
@@ -59,4 +62,12 @@ func connectDB() *sqlx.DB {
 	}
 	log.Println("db connection succeeded")
 	return db
+}
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	return cv.validator.Struct(i)
 }

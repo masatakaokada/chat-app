@@ -1,5 +1,8 @@
 FROM node:17.9-alpine as build-stage
 
+# for node-sass install
+RUN apk add python3
+
 WORKDIR /app
 
 COPY ./client/package*.json ./

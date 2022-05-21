@@ -27,32 +27,30 @@ type RoomCreateOutput struct {
 	ValidationErrors []string
 }
 
-type RoomCreateStruct struct {
-	Name    string `json:"name"`
-	UserIds []int  `json:"userIds"`
-}
-
 func RoomCreate(c echo.Context) error {
 	token := c.Get("token").(*auth.Token)
 	user, _ := repository.UserGetByFirebaseUid(token.UID)
 
-	var room RoomCreateStruct
+	var roomCreate model.RoomCreate
 	var out RoomCreateOutput
 
-	if err := c.Bind(&room); err != nil {
-		// エラーの内容をサーバーのログに出力します。
+	if err := c.Bind(&roomCreate); err != nil {
 		c.Logger().Error(err.Error())
-
-		// リクエストの解釈に失敗した場合は 400 エラーを返却します。
 		return c.JSON(http.StatusBadRequest, out)
 	}
 
-	_, err := repository.RoomCreate(room.Name, user, room.UserIds)
-	if err != nil {
-		// エラーの内容をサーバーのログに出力します。
+	// バリデーション
+	if err := c.Validate(&roomCreate); err != nil {
 		c.Logger().Error(err.Error())
 
-		// サーバー内の処理でエラーが発生した場合は 500 エラーを返却します。
+		out.ValidationErrors = roomCreate.ValidationErrors(err)
+
+		return c.JSON(http.StatusUnprocessableEntity, out)
+	}
+
+	_, err := repository.RoomCreate(roomCreate.Name, user, roomCreate.UserIds)
+	if err != nil {
+		c.Logger().Error(err.Error())
 		return c.JSON(http.StatusInternalServerError, out)
 	}
 

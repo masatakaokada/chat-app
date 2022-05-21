@@ -5,8 +5,8 @@
         ルームリスト
       </h3>
       <div class="room-list">
-        <div @click="$router.go({path: $router.currentRoute.path, force: true})">
-          <room-content :room="{ name: '全体チャット' }" class="room-item" />
+        <div class="room-item" @click="$router.go({path: $router.currentRoute.path, force: true})">
+          <room-content :room="{ name: '全体チャット' }" />
         </div>
         <div v-for="room in rooms" :key="room.id" class="room-item" @click="roomChat(room.id)">
           <room-content :room="room" />

@@ -37,10 +37,14 @@ export default {
   },
   methods: {
     createRoom: async function() {
-      await axios.post(`${process.env.VUE_APP_API_URL}/rooms`, { name: this.name, userIds: this.checkedUserIds }, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
-      })
-      this.$router.push('/')
+      try {
+        await axios.post(`${process.env.VUE_APP_API_URL}/rooms`, { name: this.name, userIds: this.checkedUserIds }, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
+        })
+        this.$router.push('/')
+      } catch (error) {
+          alert(error.response.data.ValidationErrors.join('\n'))
+      }
     }
   },
 }
