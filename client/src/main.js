@@ -4,7 +4,8 @@ import router from "./router";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import uuid from "vue-uuid";
-import "normalize.css/normalize.css";
+import vuetify from "./plugins/vuetify";
+import { loadFonts } from "./plugins/webfontloader";
 
 const firebaseConfig = {
   apiKey: process.env.VUE_APP_API_KEY,
@@ -17,10 +18,12 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 
+loadFonts();
+
 let app;
 const auth = getAuth();
 onAuthStateChanged(auth, () => {
   if (!app) {
-    createApp(App).use(router).use(uuid).mount("#app");
+    createApp(App).use(router).use(uuid).use(vuetify).mount("#app");
   }
 });
