@@ -23,7 +23,7 @@ type RoomUser struct {
 
 type RoomCreate struct {
 	Name    string `json:"name" validate:"required,max=20"`
-	UserIds []int  `json:"userIds" validate:"required,gt=1"`
+	UserIds []int  `json:"userIds" validate:"required,gte=1"`
 }
 
 func (r *RoomCreate) ValidationErrors(err error) []string {
@@ -44,7 +44,7 @@ func (r *RoomCreate) ValidationErrors(err error) []string {
 			switch err.Tag() {
 			case "required":
 				message = "ユーザーは必須です。"
-			case "gt":
+			case "gte":
 				message = "ユーザーは１人以上選択してください。"
 			}
 		}

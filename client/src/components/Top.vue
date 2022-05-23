@@ -1,6 +1,6 @@
 <template>
   <div class="top">
-    <div class="rooms-container">
+    <v-container class="rooms-container">
       <h3 style="text-align: center;">
         ルームリスト
       </h3>
@@ -12,7 +12,7 @@
           <room-content :room="room" />
         </div>
       </div>
-    </div>
+    </v-container>
     <div class="col-messages">
       <header class="header">
         <h1>Chat</h1>
@@ -28,9 +28,7 @@
 
       <transition-group name="chat" tag="div" class="list content">
         <section v-for="{ key, name, message } in chat" :key="key" class="item">
-          <div class="item-image">
-            <img src="../assets/default_icon.png" width="40" height="40">
-          </div>
+          <div class="item-image" />
           <div class="item-detail">
             <div class="item-name">
               {{ name }}
@@ -265,9 +263,19 @@ button {
   align-items: flex-end;
   margin-bottom: 2em;
 }
-.item-image img {
-  border-radius: 20px;
-  vertical-align: top;
+.item-image {
+  background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-color: #ddd;
+	height: 42px;
+	width: 42px;
+	min-height: 42px;
+	min-width: 42px;
+	margin-right: 15px;
+	border-radius: 50%;
+
+  background-image: url("../assets/default_icon.png")
 }
 .item-detail {
   margin: 0 0 0 1.4em;

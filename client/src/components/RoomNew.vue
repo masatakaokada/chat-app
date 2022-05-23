@@ -1,27 +1,51 @@
 <template>
-  <div class="room-new">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <h1>グループを作成</h1>
-    <button type="button" @click="$router.push('/')">
-      トップページ
-    </button>
-    <ul>
-      <input v-model="name" type="text" placeholder="グループ名">
-      <li v-for="user in users" :key="user.id">
-        {{ user.name }}
-        <input v-model="checkedUserIds" type="checkbox" :value="user.id">
-      </li>
-      <button @click="createRoom">
-        作成する
-      </button>
-    </ul>
+  <div class="fill-height room-new">
+    <v-container class="fill-height d-flex justify-center align-center">
+      <v-card flat min-width="300px" :width="mdAndUp ? '500px' : null">
+        <v-card-title class="d-flex justify-center pa-8">
+          <h4>ルーム作成</h4>
+        </v-card-title>
+        <v-divider />
+        <div class="px-6 py-8">
+          <v-form>
+            <v-text-field v-model="name" label="ルーム名(20文字まで)" required hide-details />
+            <div class="py-4">
+              <div v-for="user in users" :key="user.id">
+                <v-checkbox
+                  v-model="checkedUserIds"
+                  :label="user.name"
+                  :value="user.id"
+                  hide-details
+                />
+              </div>
+            </div>
+          </v-form>
+          <div class="pb-8">
+            <v-btn color="#FFCB00" height="48px" block @click="createRoom">
+              作成する
+            </v-btn>
+          </div>
+          <v-divider />
+          <p class="pt-8">
+            <v-btn height="48px" block @click="$router.push('/')">
+              トップページ
+            </v-btn>
+          </p>
+        </div>
+      </v-card>
+    </v-container>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import { useDisplay } from 'vuetify'
 export default {
   name: 'RoomNew',
+  setup () {
+    const { mdAndUp } = useDisplay()
+    return { mdAndUp }
+  },
   data () {
     return {
       users: [],
@@ -52,18 +76,6 @@ export default {
 
 <style scoped>
 .room-new {
-  text-align: center;
-  margin-top: 60px;
-}
-h1, h2 {
-  font-weight: normal;
-}
-button {
-  margin: 10px 0;
-  padding: 10px;
-}
-input {
-  margin: 10px 0;
-  padding: 10px;
+  background-color: #EEEEEE
 }
 </style>
