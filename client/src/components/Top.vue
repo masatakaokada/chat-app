@@ -1,83 +1,110 @@
 <template>
-  <div class="top">
-    <v-container class="rooms-container">
-      <h3 style="text-align: center;">
-        ルームリスト
-      </h3>
-      <div class="room-list">
-        <div class="room-item" @click="$router.go({path: $router.currentRoute.path, force: true})">
-          <room-content :room="{ name: '全体チャット' }" />
-        </div>
-        <div v-for="room in rooms" :key="room.id" class="room-item" @click="roomChat(room.id)">
-          <room-content :room="room" />
-        </div>
-      </div>
-    </v-container>
-    <div class="col-messages">
-      <header class="header">
-        <h1>Chat</h1>
-        <div key="login">
-          <button type="button" @click="signOut">
-            ログアウト
-          </button>
-          <button type="button" @click="$router.push('/rooms/new')">
-            ルームを作成
-          </button>
-        </div>
-      </header>
-
-      <transition-group name="chat" tag="div" class="list content">
-        <section v-for="{ key, name, message } in chat" :key="key" class="item">
-          <div class="item-image" />
-          <div class="item-detail">
-            <div class="item-name">
-              {{ name }}
-            </div>
-            <div class="item-message">
-              {{ message }}
-            </div>
+  <v-row class="fill-height" no-gutters>
+    <v-col cols="12" sm="3" class="border">
+      <v-container>
+        <h3 style="text-align: center;">
+          Room List
+        </h3>
+        <v-list two-line>
+          <v-list-item
+            :prepend-avatar="avatar"
+            title="全体チャット"
+            @click="$router.go({path: $router.currentRoute.path, force: true})"
+          />
+          <v-divider />
+          <div v-for="(room, index) in rooms" :key="room.id">
+            <v-list-item
+              :prepend-avatar="avatar"
+              :title="room.name"
+              @click="roomChat(room.id, room.name)"
+            >
+              <!-- <v-list-item-icon icon="mdi-dots-vertical" /> -->
+            </v-list-item>
+            <v-divider v-if="index < rooms.length - 1" :key="index" />
           </div>
-        </section>
-      </transition-group>
+        </v-list>
+      </v-container>
+    </v-col>
+    <v-col cols="12" sm="9" class="d-flex flex-column">
+      <!-- ヘッダー -->
+      <v-toolbar color="#3ab383">
+        <v-toolbar-title class="text-white">
+          {{ currentRoomName }}
+        </v-toolbar-title>
+        <v-btn class="text-white" type="button" @click="$router.push('/rooms/new')">
+          ルームを作成
+        </v-btn>
+        <v-btn class="text-white" type="button" @click="signOut">
+          ログアウト
+        </v-btn>
+      </v-toolbar>
+
+      <!-- チャットメッセージ -->
+      <v-container id="message-area" class="flex-grow-1 overflow-y-auto" style="height: 80vh;">
+        <v-list lines="three">
+          <div v-for="{ key, id, message } in chat" :key="key">
+            <v-list-item :prepend-avatar="id == currentUser.id ? null : avatar">
+              <v-card
+                :class="id == currentUser.id ? 'ml-auto pa-5' : 'pa-5'"
+                :color="id == currentUser.id ? '#B9F6CA' : '#F5F5F5'"
+                max-width="350px"
+                flat
+              >
+                <v-list-item-title style="white-space:unset;">
+                  {{ message }}
+                </v-list-item-title>
+              </v-card>
+            </v-list-item>
+          </div>
+        </v-list>
+      </v-container>
 
       <!-- 入力フォーム -->
-      <form action="" class="form" @submit.prevent="doSend">
-        <textarea v-model="input" :disabled="!user.uid" />
-        <button type="submit" :disabled="!user.uid" class="send-button">
-          Send
-        </button>
-      </form>
-    </div>
-  </div>
+      <!-- <v-container class="mt-auto"> -->
+      <v-container>
+        <v-text-field
+          v-model="input"
+          hide-details
+          append-icon="mdi-send"
+          label="Message"
+          type="text"
+          @click:append="doSend"
+        />
+      </v-container>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
 import axios from 'axios'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import RoomContent from './RoomContent.vue'
 export default {
   name: 'Top',
-  components: {
-		RoomContent
-	},
   data () {
     return {
       user: {},  // ユーザー情報
       chat: [],  // 取得したメッセージを入れる配列
       rooms: [],
       input: '',  // 入力したメッセージ
-      connection: null
+      connection: null,
+      avatar: require("@/assets/default_icon.png"),
+      currentRoomName: '全体チャット',
+      currentUser: {}
     }
   },
   async created() {
     const auth = getAuth();
     onAuthStateChanged(auth, user => {
       this.user = user ? user : {}
-      if (user) {
-        this.chat = []
-      }
     })
+    if (this.user) {
+      this.chat = []
+      const res = await axios.get(`${process.env.VUE_APP_API_URL}/user`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
+      })
+      this.currentUser = res.data
+    }
     const res = await axios.get(`${process.env.VUE_APP_API_URL}/rooms`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
     })
@@ -95,6 +122,7 @@ export default {
       const obj = JSON.parse(event.data);
       this.chat.push({
         key: this.$uuid.v4(),
+        id: obj.id,
         name: obj.username,
         message: obj.message
       })
@@ -130,10 +158,13 @@ export default {
     },
     scrollBottom() {
       this.$nextTick(() => {
-        window.scrollTo(0, document.body.clientHeight)
+        const scrollHeight = document.getElementById('message-area').scrollHeight;
+        document.getElementById('message-area').scrollTop = scrollHeight;
       })
     },
-    roomChat(roomId) {
+    roomChat(roomId, roomName) {
+      this.currentRoomName = roomName
+
       if (this.connection != null) {
         this.connection.close()
       }
@@ -152,6 +183,7 @@ export default {
         const obj = JSON.parse(event.data);
         this.chat.push({
           key: this.$uuid.v4(),
+          id: obj.id,
           name: obj.username,
           message: obj.message
         })
@@ -174,138 +206,3 @@ export default {
   }
 }
 </script>
-
-<style scoped lang="scss">
-.top {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  .rooms-container {
-    display: flex;
-    flex-flow: column;
-    flex: 0 0 25%;
-    min-width: 260px;
-    max-width: 500px;
-    position: relative;
-    background: #fff;
-    height: 100%;
-
-    .room-list {
-      flex: 1;
-      position: relative;
-      max-width: 100%;
-      cursor: pointer;
-      padding: 0 10px 5px;
-      overflow-y: auto;
-    }
-
-    .room-item {
-      border-radius: 8px;
-      align-items: center;
-      display: flex;
-      flex: 1 1 100%;
-      margin-bottom: 5px;
-      padding: 0 14px;
-      position: relative;
-      min-height: 71px;
-      transition: background-color 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-
-      &:hover {
-        background: #f6f6f6;
-      }
-    }
-  }
-
-  .col-messages {
-    position: relative;
-    height: 100%;
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    flex-flow: column;
-  }
-}
-.header {
-  width: 100%;
-  background: #3ab383;
-  margin-bottom: 2em;
-  padding: 0.4em 0.8em;
-  color: #fff;
-}
-.form {
-  margin-top:auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  bottom: 0;
-  height: 80px;
-  width: 100%;
-  background: #f5f5f5;
-}
-.form textarea {
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  height: 3em;
-  width: 90%;
-  resize: none;
-  margin-left: 10px;
-}
-button {
-  margin: 10px 10px;
-  padding: 10px;
-}
-.list {
-  margin-bottom: 100px;
-}
-.item {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  margin-bottom: 2em;
-}
-.item-image {
-  background-size: cover;
-	background-position: center center;
-	background-repeat: no-repeat;
-	background-color: #ddd;
-	height: 42px;
-	width: 42px;
-	min-height: 42px;
-	min-width: 42px;
-	margin-right: 15px;
-	border-radius: 50%;
-
-  background-image: url("../assets/default_icon.png")
-}
-.item-detail {
-  margin: 0 0 0 1.4em;
-}
-.item-name {
-  font-size: 75%;
-}
-.item-message {
-  position: relative;
-  display: inline-block;
-  padding: 0.8em;
-  background: #deefe8;
-  border-radius: 4px;
-  line-height: 1.2em;
-}
-.item-message::before {
-  position: absolute;
-  content: " ";
-  display: block;
-  left: -16px;
-  bottom: 12px;
-  border: 4px solid transparent;
-  border-right: 12px solid #deefe8;
-}
-/* トランジション用スタイル */
-.chat-enter-active {
-  transition: all 1s;
-}
-.chat-enter {
-  opacity: 0;
-  transform: translateX(-1em);
-}
-</style>

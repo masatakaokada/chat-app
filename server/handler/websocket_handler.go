@@ -13,6 +13,7 @@ import (
 
 // メッセージ用構造体
 type Message struct {
+	UserId   int    `json:"id"`
 	Username string `json:"username"`
 	Message  string `json:"message"`
 }
@@ -45,6 +46,7 @@ func readMessage(c echo.Context, clients map[*websocket.Conn]interface{}, ws *we
 			break
 		}
 		message := &Message{
+			UserId:   user.ID,
 			Username: user.Name,
 			Message:  string(byteMessage),
 		}

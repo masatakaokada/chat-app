@@ -27,6 +27,7 @@ func main() {
 	e.GET("/ws", handler.WebSocket, auth.FirebaseMiddleware())
 	e.GET("/ws/rooms/:id", handler.RoomWebSocket, auth.FirebaseMiddleware())
 	e.GET("/users", handler.UserIndex, auth.FirebaseMiddleware())
+	e.GET("/user", handler.UserShow, auth.FirebaseMiddleware())
 	e.POST("/users", handler.UserCreate, auth.FirebaseMiddleware())
 	e.GET("/rooms", handler.RoomIndex, auth.FirebaseMiddleware())
 	e.POST("/rooms", handler.RoomCreate, auth.FirebaseMiddleware())

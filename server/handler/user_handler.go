@@ -23,6 +23,19 @@ func UserIndex(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
+func UserShow(c echo.Context) error {
+	token := c.Get("token").(*auth.Token)
+
+	user, err := repository.UserGetByFirebaseUid(token.UID)
+
+	if err != nil {
+		c.Logger().Error(err.Error())
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	return c.JSON(http.StatusOK, user)
+}
+
 func UserCreate(c echo.Context) error {
 	token := c.Get("token").(*auth.Token)
 
