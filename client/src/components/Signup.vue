@@ -8,9 +8,9 @@
         <v-divider />
         <div class="px-6 py-8">
           <v-form>
-            <v-text-field v-model="name" label="ニックネーム" required />
-            <v-text-field v-model="email" label="メールアドレス" required />
-            <v-text-field v-model="password" label="パスワード" required type="password" />
+            <v-text-field v-model="name" label="ニックネーム" :rules="[rules.required, rules.counter]" counter maxlength="20" />
+            <v-text-field v-model="email" label="メールアドレス" :rules="[rules.required]" />
+            <v-text-field v-model="password" label="パスワード" :rules="[rules.required]" type="password" />
           </v-form>
           <div class="pb-8">
             <v-btn color="#FFCB00" height="48px" block @click="signUp">
@@ -39,7 +39,11 @@ export default {
     return {
       name: '',
       email: '',
-      password: ''
+      password: '',
+      rules: {
+        required: value => !!value || '入力必須です',
+        counter: value => value.length <= 20 || '20文字以内で入力してください',
+      },
     }
   },
   methods: {

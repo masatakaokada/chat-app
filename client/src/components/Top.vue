@@ -42,7 +42,7 @@
       <!-- チャットメッセージ -->
       <v-container id="message-area" class="flex-grow-1 overflow-y-auto" style="height: 80vh;">
         <v-list lines="three">
-          <div v-for="{ key, id, message } in chat" :key="key">
+          <div v-for="{ key, id, name, message } in chat" :key="key">
             <v-list-item :prepend-avatar="id == currentUser.id ? null : avatar">
               <v-card
                 :class="id == currentUser.id ? 'ml-auto pa-5' : 'pa-5'"
@@ -50,6 +50,9 @@
                 max-width="350px"
                 flat
               >
+                <v-list-item-subtitle v-if="id != currentUser.id">
+                  {{ name }}
+                </v-list-item-subtitle>
                 <v-list-item-title style="white-space:unset;">
                   {{ message }}
                 </v-list-item-title>
@@ -60,7 +63,6 @@
       </v-container>
 
       <!-- 入力フォーム -->
-      <!-- <v-container class="mt-auto"> -->
       <v-container>
         <v-text-field
           v-model="input"
