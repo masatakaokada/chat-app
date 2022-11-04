@@ -1,2 +1,4 @@
 # プロジェクト用設定
 .vscode
+
+.DS_store

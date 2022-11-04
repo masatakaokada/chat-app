@@ -1,0 +1,27 @@
+version: 0.2
+
+env:
+  parameter-store:
+    AWS_ACCOUNT_ID: "/aws_account_id"
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+      - $(aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com)
+      - VUE_REPO=$(aws ecr describe-repositories --repository-names ws-chat-app-vue --output text --query "repositories[0].repositoryUri")
+      - GO_REPO=$(aws ecr describe-repositories --repository-names ws-chat-app-go --output text --query "repositories[0].repositoryUri")
+      - VUE_IMAGE=$VUE_REPO:latest
+      - GO_IMAGE=$GO_REPO:latest
+  build:
+    commands:
+      - docker build -t $VUE_IMAGE -f docker/vue/Dockerfile.production .
+      - docker build -t $GO_IMAGE -f docker/go/Dockerfile.production .
+      - docker push $VUE_IMAGE
+      - docker push $GO_IMAGE
+  post_build:
+    commands:
+      - printf '[{"name":"ws-chat-app","imageUri":"%s"},{"name":"ws-chat-app-go","imageUri":"%s"}]' $VUE_IMAGE $GO_IMAGE > imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json

@@ -17,9 +17,4 @@ FROM alpine:latest
 
 COPY --from=builder /go/src/server /app
 
-RUN apk add go && \
-  go get bitbucket.org/liamstask/goose/cmd/goose@latest
-
-ENV PATH "/root/go/bin:$PATH"
-
 CMD /app/main $PORT
